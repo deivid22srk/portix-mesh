@@ -100,8 +100,7 @@ class MeshStore {
 
   // ------------------------------------------------------------- favoritos
 
-  bool isFavorite(String gameId) =>
-      _entryValue(_bucket('fav')[gameId]) == true;
+  bool isFavorite(String gameId) => _entryValue(_bucket('fav')[gameId]) == true;
 
   /// Alterna o favorito e devolve o op para publicar (null se sem mudança).
   Map<String, dynamic>? toggleFavorite(String gameId) =>
@@ -150,8 +149,7 @@ class MeshStore {
 
   List<String> libraryIds() => _idsWhere('lib', true);
 
-  bool? _entryValue(Object? entry) =>
-      entry is Map ? entry['v'] as bool? : null;
+  bool? _entryValue(Object? entry) => entry is Map ? entry['v'] as bool? : null;
 
   List<String> _idsWhere(String bucket, bool value) {
     final List<String> ids = <String>[];
@@ -482,8 +480,8 @@ class MeshStore {
     if (ts == null || ts <= 0) {
       return null;
     }
-    return DateTime.fromMillisecondsSinceEpoch(ts, isUtc: true)
-        .toIso8601String();
+    final DateTime date = DateTime.fromMillisecondsSinceEpoch(ts, isUtc: true);
+    return date.toIso8601String();
   }
 
   void dispose() {

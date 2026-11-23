@@ -77,7 +77,9 @@ class MeshStatusCard extends ConsumerWidget {
           Row(
             children: <Widget>[
               Icon(
-                online ? Icons.wifi_tethering_rounded : Icons.wifi_tethering_off_rounded,
+                online
+                    ? Icons.wifi_tethering_rounded
+                    : Icons.wifi_tethering_off_rounded,
                 color: online
                     ? context.colors.success
                     : context.colors.textTertiary,
@@ -113,10 +115,7 @@ class MeshStatusCard extends ConsumerWidget {
             children: <Widget>[
               InfoChip(icon: Icons.cloud_rounded, label: relaysLabel),
               if (presence.lanDevices > 0)
-                InfoChip(
-                  icon: Icons.lan_rounded,
-                  label: l10n.meshLanBadge,
-                ),
+                InfoChip(icon: Icons.lan_rounded, label: l10n.meshLanBadge),
             ],
           ),
         ],

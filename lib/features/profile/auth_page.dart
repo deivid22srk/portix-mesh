@@ -153,7 +153,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 }
 
 class _Field extends StatelessWidget {
-  const _Field({required this.controller, required this.hint, required this.icon});
+  const _Field({
+    required this.controller,
+    required this.hint,
+    required this.icon,
+  });
 
   final TextEditingController controller;
   final String hint;
