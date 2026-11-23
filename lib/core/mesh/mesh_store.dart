@@ -18,8 +18,7 @@ class MeshStore {
 
   final SharedPreferences _prefs;
   final String _deviceId;
-  Map<String, dynamic> _data;
-
+  final Map<String, dynamic> _data;
   static const String _storeKey = 'mesh.store';
 
   final StreamController<int> _changes = StreamController<int>.broadcast();

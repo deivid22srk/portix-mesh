@@ -55,12 +55,15 @@ final meshRevisionProvider = StreamProvider<int>(
 
 final meshNodeProvider = Provider<MeshNode>((ref) {
   final MeshStore store = ref.watch(meshStoreProvider);
-  final MeshNode node = MeshNode(
+  // `late` evita a auto-referência direta do provider no próprio inicializador
+  // (ciclo de inferência de tipo): o closure só é chamado depois da ligação.
+  late final MeshNode node;
+  node = MeshNode(
     identity: ref.watch(meshIdentityProvider),
     config: ref.watch(meshConfigProvider),
     onOp: store.applyOp,
     // Ao descobrir um par novo, publica o estado completo (convergência).
-    onSyncRequest: () => ref.read(meshNodeProvider).publish(store.fullState()),
+    onSyncRequest: () => node.publish(store.fullState()),
   );
   ref.onDispose(node.dispose);
   return node;

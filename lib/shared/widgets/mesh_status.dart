@@ -61,6 +61,7 @@ class MeshStatusCard extends ConsumerWidget {
     final L10n l10n = context.l10n;
     final MeshPresence presence = presenceOf(ref);
     final MeshNode node = ref.watch(meshNodeProvider);
+    final List<MeshRelayStatus> relays = node.relays;
     final int relaysOnline = relays
         .where((MeshRelayStatus r) => r.online)
         .length;

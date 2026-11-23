@@ -153,19 +153,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 }
 
 class _Field extends StatelessWidget {
-  const _Field({
-    required this.controller,
-    required this.hint,
-    required this.icon,
-    this.obscure = false,
-    this.keyboard,
-  });
+  const _Field({required this.controller, required this.hint, required this.icon});
 
   final TextEditingController controller;
   final String hint;
   final IconData icon;
-  final bool obscure;
-  final TextInputType? keyboard;
 
   @override
   Widget build(BuildContext context) {
@@ -179,8 +171,6 @@ class _Field extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              obscureText: obscure,
-              keyboardType: keyboard,
               style: context.texts.bodyLarge,
               cursorColor: context.colors.accent,
               decoration: InputDecoration(
