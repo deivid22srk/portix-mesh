@@ -1,0 +1,54 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.idea/
+.vscode/
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+android/app/*.p12
+android/app/*.jks
+android/app/debug/
+android/app/profile/
+android/app/release/
+*.jks
+*.p12
+*.keystore
+
+# iOS / macOS (não usados neste app)
+ios/Pods/
+ios/.symlinks/
+macos/Pods/
+
+# Segredos e dados brutos do catálogo
+.env
+.env.*
+!.env.example
+env.local.json
+*_catalog.json
+*.zip
+tools/import/cache/
+
+# Rust / artefatos nativos gerados
+native/portix_downloader/target/
+android/app/src/main/jniLibs/
+
+# Relay (Node) — dependências instaladas no build/Railway
+relay/node_modules/
+relay/.npm/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Lockfile gerado pelo pub get; CI resolve dependências sozinho.
+/pubspec.lock
+test/goldens_out/

@@ -1,0 +1,154 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: portix-mesh-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # O relay é parte do produto: qualquer pessoa pode hospedar um. Este job
+  # garante que o servidor continua funcionando antes de empacotar o app.
+  relay:
+    name: Relay (presença + retransmissão)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: relay
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Dependências
+        run: npm install --no-audit --no-fund
+
+      - name: Testes do relay
+        run: npm test
+
+  build:
+    name: Analyze, test and build release APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          # História completa para os portões de UI (regra ui_change em HEAD~1).
+          fetch-depth: 0
+
+      - name: Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Flutter stable
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.50.0"
+          cache: true
+
+      - name: Versões
+        run: flutter --version
+
+      - name: Dependências
+        run: flutter pub get
+
+      - name: Portões de UI
+        run: tool/ui_gates.sh --skip-analyze
+
+      - name: Análise estática
+        run: flutter analyze
+
+      - name: Testes
+        run: flutter test --reporter expanded
+
+      - name: Gerar scaffold Android
+        run: |
+          flutter create \
+            --platforms=android \
+            --org com.deivid22srk \
+            --project-name portix \
+            /tmp/portix_scaffold
+          cp -R /tmp/portix_scaffold/android ./android
+
+      - name: Ajustar Android para release
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: python3 tools/ci/prepare_android.py
+
+      - name: Ícone e splash nativos
+        run: |
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
+
+      - name: Rust + targets Android
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+
+      - name: cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Resolver NDK
+        run: |
+          SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          NDK_DIR="$(ls -d "$SDK/ndk/"* 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -z "$NDK_DIR" ]; then
+            SDKMANAGER="$(command -v sdkmanager || echo "$SDK/cmdline-tools/latest/bin/sdkmanager")"
+            yes | "$SDKMANAGER" --install "ndk;26.1.10909125" >/dev/null
+            NDK_DIR="$SDK/ndk/26.1.10909125"
+          fi
+          echo "ANDROID_NDK_HOME=$NDK_DIR" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$NDK_DIR" >> "$GITHUB_ENV"
+          echo "NDK: $NDK_DIR"
+
+      - name: Compilar motor de download (Rust)
+        run: |
+          cd native/portix_downloader
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 \
+            -o ../../android/app/src/main/jniLibs build --release
+          find ../../android/app/src/main/jniLibs -name "*.so" -print
+
+      - name: Build APK release (split por ABI)
+        env:
+          PORTIX_RELAYS: ${{ secrets.PORTIX_RELAYS }}
+        run: |
+          flutter build apk --release --split-per-abi \
+            --dart-define=PORTIX_RELAYS="$PORTIX_RELAYS"
+
+      - name: Build APK universal
+        env:
+          PORTIX_RELAYS: ${{ secrets.PORTIX_RELAYS }}
+        run: |
+          flutter build apk --release \
+            --dart-define=PORTIX_RELAYS="$PORTIX_RELAYS"
+
+      - name: Listar artefatos
+        run: ls -lh build/app/outputs/flutter-apk/
+
+      - name: Publicar APKs
+        uses: actions/upload-artifact@v5
+        with:
+          name: portix-apk
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 30

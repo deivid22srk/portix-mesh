@@ -1,0 +1,28 @@
+# Análise estática do PORTIX.
+# Base: flutter_lints (conjunto recomendado) com regras puramente estilísticas
+# desligadas para manter o foco em correção, segurança e performance.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "admin_app/**"
+    - build/**
+  errors:
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    avoid_unnecessary_containers: false
+    prefer_const_constructors: false
+    prefer_const_constructors_in_immutables: false
+    prefer_const_declarations: false
+    prefer_const_literals_to_create_immutables: false
+    unnecessary_const: false
+    sized_box_for_whitespace: false
+    sort_child_properties_last: false
+    use_super_parameters: false
+    unnecessary_underscores: false
+    library_private_types_in_public_api: false
+    prefer_initializing_formals: false

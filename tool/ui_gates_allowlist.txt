@@ -1,0 +1,2 @@
+# Allowlist dos portões de UI (gerada por tool/ui_gates.sh --init).
+# Formato: regra:prefixo/do/caminho. Drene por tela — meta: vazia no fim do U2.

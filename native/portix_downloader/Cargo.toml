@@ -1,0 +1,25 @@
+[package]
+name = "portix_downloader"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "portix_downloader"
+# cdylib para o Android (JNI); rlib para `cargo test` no host.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+jni = "0.21"
+# ureq usa rustls (TLS puro em Rust), evitando OpenSSL no Android.
+# Sem a feature `gzip`: descompressão automática invalida Content-Length,
+# Range/If-Range e a detecção de truncamento (ver .ralph/DECISIONS.md D2).
+ureq = { version = "2.10", default-features = false, features = ["tls"] }
+# statvfs para pré-checagem de espaço em disco (ver D5).
+libc = "0.2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,17 @@
+{
+  "name": "portix-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Relay WebSocket da malha PORTIX: presença e retransmissão de ops. Qualquer pessoa pode hospedar um — nenhum é obrigatório.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/relay.test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
