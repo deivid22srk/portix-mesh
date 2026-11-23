@@ -84,7 +84,6 @@ class _GatedRepository implements CatalogRepository {
 
 Future<ProviderContainer> _container({
   required bool signedIn,
-  String? email,
   CatalogRepository? repository,
 }) async {
   SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -360,27 +359,19 @@ void main() {
       },
     );
 
-    testWidgets('header com e-mail real: e-mail vence @handle', (
+    testWidgets('header mostra o @handle da identidade local', (
       WidgetTester tester,
     ) async {
-      final ProviderContainer container = await _container(
-        signedIn: true,
-        email: 'ana@portix.app',
-      );
+      final ProviderContainer container = await _container(signedIn: true);
       addTearDown(container.dispose);
       await _pumpRouter(tester, container);
       _go(container, '/menu');
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
 
       expect(
-        find.text('ana@portix.app'),
-        findsOneWidget,
-        reason: 'e-mail da conta aparece na linha secundária do header',
-      );
-      expect(
         find.text('@ana'),
-        findsNothing,
-        reason: 'com e-mail real o @handle não duplica a linha secundária',
+        findsOneWidget,
+        reason: 'identidade local: o @handle aparece na linha secundária',
       );
     });
 
