@@ -97,15 +97,19 @@ Future<ProviderContainer> _container({
       accountProvider.overrideWith(_FixedAccountController.new),
     ],
   );
+  final AccountState account;
+  if (signedIn) {
+    account = const AccountState(
+      id: 'u-1',
+      displayName: 'Ana',
+      handle: 'ana',
+      signedIn: true,
+    );
+  } else {
+    account = const AccountState();
+  }
   (container.read(accountProvider.notifier) as _FixedAccountController).set(
-    signedIn
-        ? const AccountState(
-            id: 'u-1',
-            displayName: 'Ana',
-            handle: 'ana',
-            signedIn: true,
-          )
-        : const AccountState(),
+    account,
   );
   return container;
 }
@@ -136,8 +140,9 @@ Future<void> _pumpRouter(
               minScaleFactor: 1.0,
               maxScaleFactor: 2.0,
               child: MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaler: TextScaler.linear(textScale)),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(textScale)),
                 child: child!,
               ),
             ),
@@ -446,8 +451,10 @@ void main() {
         );
         expect(
           (tester.widget(
-            find.widgetWithText(SectionTile, 'Recarregar catálogo'),
-          ) as SectionTile).onTap,
+                    find.widgetWithText(SectionTile, 'Recarregar catálogo'),
+                  )
+                  as SectionTile)
+              .onTap,
           isNull,
           reason: 'tap desabilitado durante o refresh (sem reentrância)',
         );
@@ -462,8 +469,10 @@ void main() {
         expect(find.byType(CircularProgressIndicator), findsNothing);
         expect(
           (tester.widget(
-            find.widgetWithText(SectionTile, 'Recarregar catálogo'),
-          ) as SectionTile).onTap,
+                    find.widgetWithText(SectionTile, 'Recarregar catálogo'),
+                  )
+                  as SectionTile)
+              .onTap,
           isNotNull,
           reason: 'tap reabilitado após o fim do refresh',
         );
