@@ -136,9 +136,8 @@ Future<void> _pumpRouter(
               minScaleFactor: 1.0,
               maxScaleFactor: 2.0,
               child: MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(textScaler: TextScaler.linear(textScale)),
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(textScale)),
                 child: child!,
               ),
             ),
@@ -447,10 +446,8 @@ void main() {
         );
         expect(
           (tester.widget(
-                    find.widgetWithText(SectionTile, 'Recarregar catálogo'),
-                  )
-                  as SectionTile)
-              .onTap,
+            find.widgetWithText(SectionTile, 'Recarregar catálogo'),
+          ) as SectionTile).onTap,
           isNull,
           reason: 'tap desabilitado durante o refresh (sem reentrância)',
         );
@@ -465,10 +462,8 @@ void main() {
         expect(find.byType(CircularProgressIndicator), findsNothing);
         expect(
           (tester.widget(
-                    find.widgetWithText(SectionTile, 'Recarregar catálogo'),
-                  )
-                  as SectionTile)
-              .onTap,
+            find.widgetWithText(SectionTile, 'Recarregar catálogo'),
+          ) as SectionTile).onTap,
           isNotNull,
           reason: 'tap reabilitado após o fim do refresh',
         );
